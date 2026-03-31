@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}{{ patient.name }} — HealthGuard{% endblock %}
+{% block content %}
+<div class="container">
+  <div style="margin-bottom:1.5rem;">
+    <a href="{{ url_for('doctor_dashboard') }}" class="btn btn-outline btn-sm"><i class="fa fa-arrow-left"></i> Back to Dashboard</a>
+  </div>
+
+  <div class="page-header">
+    <h1><i class="fa fa-user-circle"></i> {{ patient.name }}</h1>
+    <p>Full health history and risk analysis.</p>
+  </div>
+
+  <!-- Patient info -->
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="card-header"><span class="card-title">Patient Information</span></div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem;">
+      <div><div style="font-size:.75rem; color:var(--muted);">Age</div><div style="font-weight:600;">{{ patient.age or '—' }} yrs</div></div>
+      <div><div style="font-size:.75rem; color:var(--muted);">Sex</div><div style="font-weight:600;">{{ patient.sex or '—' }}</div></div>
+      <div><div style="font-size:.75rem; color:var(--muted);">Blood Group</div><div style="font-weight:600;">{{ patient.blood_group or '—' }}</div></div>
+      <div><div style="font-size:.75rem; color:var(--muted);">Mobile</div><div style="font-weight:600;">{{ patient.mobile or '—' }}</div></div>
+      <div><div style="font-size:.75rem; color:var(--muted);">Email</div><div style="font-weight:600; font-size:.88rem;">{{ patient.email }}</div></div>
+      <div><div style="font-size:.75rem; color:var(--muted);">Total Checks</div><div style="font-weight:600;">{{ predictions | length }}</div></div>
+    </div>
+  </div>
+
+  {% if latest %}
+  <!-- Latest results -->
+  <div class="stats-grid" style="margin-bottom:1.5rem;">
+    <div class="stat-card" style="border-left:4px solid var(--danger);">
+      <div class="label">Heart Risk</div>
+      <div class="value" style="color:var(--danger);">{{ latest.heart_risk }}%</div>
+      <div class="sub">{{ latest.heart_level }}</div>
+    </div>
+    <div class="stat-card" style="border-left:4px solid var(--warning);">
+      <div class="label">Diabetes Risk</div>
+      <div class="value" style="color:var(--warning);">{{ latest.diabetes_risk }}%</div>
+      <div class="sub">{{ latest.diabetes_level }}</div>
+    </div>
+    <div class="stat-card" style="border-left:4px solid #22d3ee;">
+      <div class="label">Kidney Risk</div>
+      <div class="value" style="color:#22d3ee;">{{ latest.kidney_risk }}%</div>
+      <div class="sub">{{ latest.kidney_level }}</div>
+    </div>
+    <div class="stat-card" style="border-left:4px solid var(--accent);">
+      <div class="label">Health Score</div>
+      <div class="value" style="color:var(--accent);">{{ latest.overall_score }}/100</div>
+      <div class="sub">{{ latest.overall_status }}</div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="card-header"><span class="card-title"><i class="fa fa-chart-line"></i> Risk Trend (Last 6 Checks)</span></div>
+    <canvas id="trendChart" height="120"></canvas>
+  </div>
+  {% endif %}
+
+  <!-- Prediction history table -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="fa fa-table"></i> All Predictions</span>
+    </div>
+    {% if predictions %}
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Heart</th><th>Diabetes</th><th>Kidney</th><th>Score</th><th>Status</th><th>Report</th></tr>
+        </thead>
+        <tbody>
+          {% for p in predictions %}
+          <tr>
+            <td>{{ p.created_at.strftime('%d %b %Y, %H:%M') }}</td>
+            <td style="font-weight:700; color:{% if p.heart_risk >= 60 %}var(--danger){% elif p.heart_risk >= 30 %}var(--warning){% else %}var(--success){% endif %}">{{ p.heart_risk }}%</td>
+            <td style="font-weight:700; color:{% if p.diabetes_risk >= 60 %}var(--danger){% elif p.diabetes_risk >= 30 %}var(--warning){% else %}var(--success){% endif %}">{{ p.diabetes_risk }}%</td>
+            <td style="font-weight:700; color:{% if p.kidney_risk >= 60 %}var(--danger){% elif p.kidney_risk >= 30 %}var(--warning){% else %}var(--success){% endif %}">{{ p.kidney_risk }}%</td>
+            <td><strong>{{ p.overall_score }}/100</strong></td>
+            <td><span class="badge {% if p.overall_score >= 75 %}badge-low{% elif p.overall_score >= 50 %}badge-moderate{% else %}badge-high{% endif %}">{{ p.overall_status }}</span></td>
+            <td><a href="{{ url_for('download_report', pred_id=p.id) }}" class="btn btn-sm btn-outline"><i class="fa fa-download"></i></a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p style="color:var(--muted); padding:2rem; text-align:center;">No predictions yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+{% if latest and predictions %}
+<script>
+new Chart(document.getElementById('trendChart').getContext('2d'), {
+  type:'line',
+  data:{
+    labels:{{ chart_labels|safe }},
+    datasets:[
+      {label:'Heart',    data:{{ chart_heart|safe }},  borderColor:'#ef4444', tension:.4, fill:false, pointRadius:4},
+      {label:'Diabetes', data:{{ chart_diab|safe }},   borderColor:'#f59e0b', tension:.4, fill:false, pointRadius:4},
+      {label:'Kidney',   data:{{ chart_kidney|safe }}, borderColor:'#22d3ee', tension:.4, fill:false, pointRadius:4},
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{labels:{color:'#94a3b8'}}},
+    scales:{
+      x:{ticks:{color:'#64748b'}, grid:{color:'rgba(255,255,255,.05)'}},
+      y:{min:0, max:100, ticks:{color:'#64748b', callback:v=>v+'%'}, grid:{color:'rgba(255,255,255,.05)'}}
+    }
+  }
+});
+</script>
+{% endif %}
+{% endblock %}

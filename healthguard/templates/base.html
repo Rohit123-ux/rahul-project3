@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}HealthGuard{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #0ea5e9;
+      --primary-dark: #0284c7;
+      --accent: #6366f1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #22c55e;
+      --bg: #0f172a;
+      --bg2: #1e293b;
+      --bg3: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: #334155;
+      --card: #1e293b;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+    /* ── NAVBAR ── */
+    nav {
+      background: rgba(15,23,42,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top:0; z-index:100;
+    }
+    .nav-brand { display:flex; align-items:center; gap:.6rem; text-decoration:none; }
+    .nav-brand span { font-size:1.3rem; font-weight:800; background:linear-gradient(135deg,#0ea5e9,#6366f1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .nav-links { display:flex; align-items:center; gap:1.5rem; }
+    .nav-links a { color:var(--muted); text-decoration:none; font-size:.9rem; font-weight:500; transition:color .2s; }
+    .nav-links a:hover { color:var(--text); }
+    .nav-links a.active { color:var(--primary); }
+    .btn { display:inline-flex; align-items:center; gap:.4rem; padding:.5rem 1.1rem; border-radius:8px; font-size:.88rem; font-weight:600; text-decoration:none; cursor:pointer; border:none; transition:all .2s; }
+    .btn-primary { background:var(--primary); color:#fff; }
+    .btn-primary:hover { background:var(--primary-dark); }
+    .btn-outline { background:transparent; border:1px solid var(--border); color:var(--text); }
+    .btn-outline:hover { border-color:var(--primary); color:var(--primary); }
+    .btn-danger { background:var(--danger); color:#fff; }
+    .btn-sm { padding:.35rem .8rem; font-size:.82rem; }
+
+    /* ── FLASH ── */
+    .flash-container { padding:.75rem 2rem 0; }
+    .flash { padding:.75rem 1.2rem; border-radius:8px; margin-bottom:.5rem; font-size:.9rem; display:flex; align-items:center; gap:.6rem; }
+    .flash-success { background:rgba(34,197,94,.15); border:1px solid rgba(34,197,94,.3); color:#4ade80; }
+    .flash-danger  { background:rgba(239,68,68,.15);  border:1px solid rgba(239,68,68,.3);  color:#f87171; }
+    .flash-info    { background:rgba(14,165,233,.15); border:1px solid rgba(14,165,233,.3); color:#38bdf8; }
+    .flash-warning { background:rgba(245,158,11,.15); border:1px solid rgba(245,158,11,.3); color:#fbbf24; }
+
+    /* ── LAYOUT ── */
+    .container { max-width:1200px; margin:0 auto; padding:2rem; }
+    .page-header { margin-bottom:2rem; }
+    .page-header h1 { font-size:1.75rem; font-weight:800; }
+    .page-header p  { color:var(--muted); margin-top:.3rem; }
+
+    /* ── CARDS ── */
+    .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.5rem; }
+    .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem; }
+    .card-title { font-size:1rem; font-weight:700; }
+
+    /* ── STAT CARDS ── */
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin-bottom:2rem; }
+    .stat-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.2rem; }
+    .stat-card .label { font-size:.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+    .stat-card .value { font-size:2rem; font-weight:800; margin:.3rem 0; }
+    .stat-card .sub   { font-size:.8rem; color:var(--muted); }
+
+    /* ── RISK BADGES ── */
+    .badge { display:inline-block; padding:.25rem .65rem; border-radius:20px; font-size:.75rem; font-weight:600; }
+    .badge-low      { background:rgba(34,197,94,.15);  color:#4ade80; border:1px solid rgba(34,197,94,.3); }
+    .badge-moderate { background:rgba(245,158,11,.15); color:#fbbf24; border:1px solid rgba(245,158,11,.3); }
+    .badge-high     { background:rgba(239,68,68,.15);  color:#f87171; border:1px solid rgba(239,68,68,.3); }
+    .badge-nodata   { background:rgba(148,163,184,.1); color:var(--muted); border:1px solid var(--border); }
+
+    /* ── TABLE ── */
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:left; padding:.75rem 1rem; font-size:.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid var(--border); }
+    td { padding:.85rem 1rem; font-size:.88rem; border-bottom:1px solid rgba(51,65,85,.5); vertical-align:middle; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:rgba(255,255,255,.02); }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom:1.2rem; }
+    label { display:block; font-size:.85rem; font-weight:600; color:var(--muted); margin-bottom:.4rem; }
+    input, select, textarea { width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:.65rem .9rem; font-size:.9rem; font-family:inherit; transition:border-color .2s; }
+    input:focus, select:focus { outline:none; border-color:var(--primary); }
+    input::placeholder { color:var(--muted); }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .form-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; }
+
+    /* ── PROGRESS BAR ── */
+    .progress { background:var(--bg3); border-radius:99px; height:8px; overflow:hidden; }
+    .progress-bar { height:100%; border-radius:99px; transition:width .5s; }
+
+    /* ── FOOTER ── */
+    footer { text-align:center; padding:2rem; color:var(--muted); font-size:.82rem; border-top:1px solid var(--border); margin-top:4rem; }
+    footer a { color:var(--primary); text-decoration:none; }
+
+    @media(max-width:768px){
+      .form-grid, .form-grid-3 { grid-template-columns:1fr; }
+      .container { padding:1rem; }
+      nav { padding:0 1rem; }
+      .nav-links { gap:.75rem; }
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="{{ url_for('index') }}">
+    🛡️ <span>HealthGuard</span>
+  </a>
+  <div class="nav-links">
+    {% if current_user.is_authenticated %}
+      {% if current_user.role == 'doctor' %}
+        <a href="{{ url_for('doctor_dashboard') }}" class="{% if request.endpoint=='doctor_dashboard' %}active{% endif %}">
+          <i class="fa fa-stethoscope"></i> Dashboard
+        </a>
+      {% else %}
+        <a href="{{ url_for('patient_dashboard') }}" class="{% if request.endpoint=='patient_dashboard' %}active{% endif %}">
+          <i class="fa fa-gauge"></i> Dashboard
+        </a>
+        <a href="{{ url_for('predict') }}" class="{% if request.endpoint=='predict' %}active{% endif %}">
+          <i class="fa fa-microscope"></i> Health Check
+        </a>
+        <a href="{{ url_for('history') }}" class="{% if request.endpoint=='history' %}active{% endif %}">
+          <i class="fa fa-clock-rotate-left"></i> History
+        </a>
+      {% endif %}
+      <a href="{{ url_for('developer') }}"><i class="fa fa-code"></i> Developer</a>
+      <a href="{{ url_for('logout') }}" class="btn btn-outline btn-sm">
+        <i class="fa fa-right-from-bracket"></i> Logout
+      </a>
+    {% else %}
+      <a href="{{ url_for('developer') }}"><i class="fa fa-code"></i> Developer</a>
+      <a href="{{ url_for('login') }}" class="btn btn-outline btn-sm">Login</a>
+      <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Register</a>
+    {% endif %}
+  </div>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-container">
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">
+          <i class="fa fa-circle-info"></i> {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<footer>
+  HealthGuard &mdash; B.Tech Final Year Project 2024–25 &nbsp;|&nbsp;
+  Dept. of CSE, Govt. College of Engineering, Odisha &nbsp;|&nbsp;
+  <a href="{{ url_for('developer') }}">Built by Rahul Prasad Das</a>
+</footer>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

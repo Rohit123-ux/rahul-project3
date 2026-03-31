@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Login — HealthGuard{% endblock %}
+{% block extra_css %}
+<style>
+  .auth-wrap { min-height:calc(100vh - 64px); display:flex; align-items:center; justify-content:center; padding:2rem; }
+  .auth-box { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:2.5rem; width:100%; max-width:430px; }
+  .auth-logo { text-align:center; margin-bottom:2rem; }
+  .auth-logo .icon { font-size:2.5rem; }
+  .auth-logo h2 { font-size:1.4rem; font-weight:800; margin-top:.5rem; }
+  .auth-logo p { color:var(--muted); font-size:.88rem; margin-top:.25rem; }
+  .auth-footer { text-align:center; margin-top:1.5rem; font-size:.88rem; color:var(--muted); }
+  .auth-footer a { color:var(--primary); text-decoration:none; font-weight:600; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="icon">🛡️</div>
+      <h2>Welcome Back</h2>
+      <p>Sign in to your HealthGuard account</p>
+    </div>
+    <form method="POST" action="{{ url_for('login') }}">
+      <div class="form-group">
+        <label><i class="fa fa-envelope"></i> Email Address</label>
+        <input type="email" name="email" placeholder="you@example.com" required autofocus />
+      </div>
+      <div class="form-group">
+        <label><i class="fa fa-lock"></i> Password</label>
+        <input type="password" name="password" placeholder="••••••••" required />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; padding:.75rem; font-size:1rem; margin-top:.5rem;">
+        <i class="fa fa-right-to-bracket"></i> Sign In
+      </button>
+    </form>
+    <div class="auth-footer">
+      Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

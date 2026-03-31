@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Register — HealthGuard{% endblock %}
+{% block extra_css %}
+<style>
+  .auth-wrap { min-height:calc(100vh - 64px); display:flex; align-items:center; justify-content:center; padding:2rem; }
+  .auth-box { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:2.5rem; width:100%; max-width:560px; }
+  .auth-logo { text-align:center; margin-bottom:2rem; }
+  .auth-logo .icon { font-size:2.5rem; }
+  .auth-logo h2 { font-size:1.4rem; font-weight:800; margin-top:.5rem; }
+  .auth-logo p { color:var(--muted); font-size:.88rem; margin-top:.25rem; }
+  .auth-footer { text-align:center; margin-top:1.5rem; font-size:.88rem; color:var(--muted); }
+  .auth-footer a { color:var(--primary); text-decoration:none; font-weight:600; }
+  .section-label { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:1.5rem 0 .75rem; font-weight:700; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="icon">🛡️</div>
+      <h2>Create Account</h2>
+      <p>Join HealthGuard and start monitoring your health</p>
+    </div>
+    <form method="POST" action="{{ url_for('register') }}">
+      <div class="section-label"><i class="fa fa-user"></i> Personal Details</div>
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="name" placeholder="Rahul Kumar" required />
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Age</label>
+          <input type="number" name="age" placeholder="25" min="1" max="120" required />
+        </div>
+        <div class="form-group">
+          <label>Sex</label>
+          <select name="sex" required>
+            <option value="">Select...</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Mobile Number</label>
+          <input type="tel" name="mobile" placeholder="+91 9876543210" />
+        </div>
+        <div class="form-group">
+          <label>Blood Group</label>
+          <select name="blood_group">
+            <option value="">Select...</option>
+            <option>A+</option><option>A-</option>
+            <option>B+</option><option>B-</option>
+            <option>O+</option><option>O-</option>
+            <option>AB+</option><option>AB-</option>
+          </select>
+        </div>
+      </div>
+      <div class="section-label"><i class="fa fa-lock"></i> Login Credentials</div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" name="email" placeholder="you@example.com" required />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Min 6 characters" required minlength="6" />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; padding:.75rem; font-size:1rem; margin-top:.5rem;">
+        <i class="fa fa-user-plus"></i> Create Account
+      </button>
+    </form>
+    <div class="auth-footer">
+      Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

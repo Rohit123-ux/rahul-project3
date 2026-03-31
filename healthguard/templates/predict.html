@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Health Check — HealthGuard{% endblock %}
+{% block extra_css %}
+<style>
+  .section-divider { font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:var(--primary); font-weight:700; padding:.5rem 0; margin:1rem 0 .5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:.5rem; }
+  .hint { font-size:.75rem; color:var(--muted); margin-top:.25rem; }
+  .predict-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:2rem; max-width:860px; margin:0 auto; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <h1><i class="fa fa-microscope"></i> Health Risk Assessment</h1>
+    <p>Fill in your health parameters below. All fields marked with * are required.</p>
+  </div>
+  <div class="predict-card">
+    <form method="POST" action="{{ url_for('predict') }}">
+
+      <div class="section-divider"><i class="fa fa-user"></i> Basic Information</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Age *</label>
+          <input type="number" name="age" value="{{ patient.age or '' }}" placeholder="e.g. 45" min="1" max="120" required />
+        </div>
+        <div class="form-group">
+          <label>Sex *</label>
+          <select name="sex" required>
+            <option value="">Select...</option>
+            <option value="1" {% if patient.sex == 'Male' %}selected{% endif %}>Male</option>
+            <option value="0" {% if patient.sex == 'Female' %}selected{% endif %}>Female</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-divider"><i class="fa fa-heart-pulse"></i> Cardiovascular Parameters</div>
+      <div class="form-grid-3">
+        <div class="form-group">
+          <label>Chest Pain Type *</label>
+          <select name="cp" required>
+            <option value="">Select...</option>
+            <option value="0">Typical Angina</option>
+            <option value="1">Atypical Angina</option>
+            <option value="2">Non-anginal Pain</option>
+            <option value="3">Asymptomatic</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Resting Blood Pressure *</label>
+          <input type="number" name="trestbps" placeholder="e.g. 120" min="60" max="250" required />
+          <div class="hint">mm Hg (also used for Diabetes & Kidney)</div>
+        </div>
+        <div class="form-group">
+          <label>Cholesterol *</label>
+          <input type="number" name="chol" placeholder="e.g. 200" min="100" max="600" required />
+          <div class="hint">mg/dl</div>
+        </div>
+        <div class="form-group">
+          <label>Fasting Blood Sugar *</label>
+          <input type="number" name="fasting_sugar" placeholder="e.g. 100" min="50" max="400" required />
+          <div class="hint">mg/dl (>120 = high)</div>
+        </div>
+        <div class="form-group">
+          <label>Max Heart Rate *</label>
+          <input type="number" name="thalach" placeholder="e.g. 150" min="60" max="250" required />
+          <div class="hint">bpm (thalach)</div>
+        </div>
+        <div class="form-group">
+          <label>Exercise Induced Angina *</label>
+          <select name="exang" required>
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-divider"><i class="fa fa-droplet"></i> Diabetes Parameters</div>
+      <div class="form-grid-3">
+        <div class="form-group">
+          <label>Glucose Level *</label>
+          <input type="number" name="glucose" placeholder="e.g. 120" min="40" max="500" required />
+          <div class="hint">mg/dl (blood glucose random)</div>
+        </div>
+        <div class="form-group">
+          <label>BMI *</label>
+          <input type="number" step="0.1" name="bmi" placeholder="e.g. 24.5" min="10" max="70" required />
+          <div class="hint">kg/m²</div>
+        </div>
+        <div class="form-group">
+          <label>Pregnancies</label>
+          <input type="number" name="pregnancies" placeholder="0" min="0" max="20" value="0"/>
+          <div class="hint">Number of pregnancies (0 for male)</div>
+        </div>
+        <div class="form-group">
+          <label>Insulin</label>
+          <input type="number" name="insulin" placeholder="125" min="0" max="1000" value="125"/>
+          <div class="hint">mu U/ml (default 125 if unknown)</div>
+        </div>
+      </div>
+
+      <div class="section-divider"><i class="fa fa-kidneys"></i> Kidney Parameters</div>
+      <div class="form-grid-3">
+        <div class="form-group">
+          <label>Haemoglobin *</label>
+          <input type="number" step="0.1" name="hemo" placeholder="e.g. 13.5" min="3" max="25" required />
+          <div class="hint">g/dl</div>
+        </div>
+        <div class="form-group">
+          <label>Serum Creatinine *</label>
+          <input type="number" step="0.1" name="sc" placeholder="e.g. 1.0" min="0.1" max="20" required />
+          <div class="hint">mg/dl (normal: 0.6–1.2)</div>
+        </div>
+        <div class="form-group">
+          <label>Blood Urea</label>
+          <input type="number" name="bu" placeholder="40" min="0" max="400" value="40"/>
+          <div class="hint">mg/dl</div>
+        </div>
+        <div class="form-group">
+          <label>Hypertension</label>
+          <select name="htn"><option value="0">No</option><option value="1">Yes</option></select>
+        </div>
+        <div class="form-group">
+          <label>Diabetes Mellitus</label>
+          <select name="dm"><option value="0">No</option><option value="1">Yes</option></select>
+        </div>
+        <div class="form-group">
+          <label>Anemia</label>
+          <select name="ane"><option value="0">No</option><option value="1">Yes</option></select>
+        </div>
+      </div>
+
+      <div style="margin-top:2rem; display:flex; gap:1rem; justify-content:flex-end;">
+        <a href="{{ url_for('patient_dashboard') }}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary" style="padding:.75rem 2.5rem; font-size:1rem;">
+          <i class="fa fa-microscope"></i> Analyse My Health
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

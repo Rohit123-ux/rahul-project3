@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block title %}Developer — Rahul Prasad Das | HealthGuard{% endblock %}
+{% block extra_css %}
+<style>
+  /* ── HERO ── */
+  .dev-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 4rem 2rem 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .dev-hero::before {
+    content:'';
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 30% 50%, rgba(14,165,233,.12) 0%, transparent 55%),
+      radial-gradient(circle at 70% 50%, rgba(99,102,241,.12) 0%, transparent 55%);
+    pointer-events:none;
+  }
+  .avatar-wrap {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+  }
+  .avatar {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0ea5e9, #6366f1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3rem; font-weight: 900;
+    color: #fff;
+    box-shadow: 0 0 40px rgba(14,165,233,.4);
+    margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+  .avatar-ring {
+    position: absolute; inset: -6px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: linear-gradient(135deg, #0ea5e9, #6366f1) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    animation: spin 8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .dev-hero h1 { font-size: 2.2rem; font-weight: 900; margin-bottom: .4rem; }
+  .dev-hero h1 span {
+    background: linear-gradient(135deg, #0ea5e9, #6366f1);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .dev-role {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: rgba(14,165,233,.12); border: 1px solid rgba(14,165,233,.3);
+    color: #38bdf8; padding: .35rem 1rem; border-radius: 99px;
+    font-size: .85rem; font-weight: 600; margin: .75rem 0 1.5rem;
+  }
+  .dev-bio { color: var(--muted); max-width: 580px; margin: 0 auto 2rem; line-height: 1.7; font-size: .97rem; }
+  .social-links { display: flex; justify-content: center; gap: .75rem; flex-wrap: wrap; }
+  .social-btn {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .55rem 1.2rem; border-radius: 10px;
+    font-size: .85rem; font-weight: 600; text-decoration: none;
+    transition: all .2s; border: 1px solid var(--border);
+  }
+  .social-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+  .social-btn.fb     { background: rgba(24,119,242,.15); border-color: rgba(24,119,242,.35); color: #60a5fa; }
+  .social-btn.ig     { background: rgba(225,48,108,.15); border-color: rgba(225,48,108,.35); color: #f472b6; }
+  .social-btn.li     { background: rgba(10,102,194,.15); border-color: rgba(10,102,194,.35); color: #38bdf8; }
+  .social-btn.mail   { background: rgba(34,197,94,.15);  border-color: rgba(34,197,94,.35);  color: #4ade80; }
+  .social-btn.phone  { background: rgba(245,158,11,.15); border-color: rgba(245,158,11,.35); color: #fbbf24; }
+
+  /* ── SECTIONS ── */
+  .dev-section { max-width: 1000px; margin: 0 auto; padding: 3rem 2rem; }
+  .section-heading { font-size: 1.4rem; font-weight: 800; margin-bottom: 1.75rem; display: flex; align-items: center; gap: .6rem; }
+  .section-heading::after {
+    content:''; flex:1; height:1px; background:linear-gradient(90deg, var(--border), transparent);
+  }
+
+  /* ── TECH GRID ── */
+  .tech-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+  .tech-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.2rem 1.4rem;
+    display: flex; align-items: center; gap: .9rem;
+    transition: border-color .2s, transform .2s;
+  }
+  .tech-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .tech-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .tech-name { font-size: .88rem; font-weight: 700; }
+  .tech-sub  { font-size: .75rem; color: var(--muted); margin-top: .15rem; }
+
+  /* ── PROJECT CARD ── */
+  .project-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 2rem; margin-bottom: 1.2rem;
+    transition: border-color .2s;
+  }
+  .project-card:hover { border-color: var(--primary); }
+  .project-card h3 { font-size: 1.15rem; font-weight: 800; margin-bottom: .4rem; }
+  .project-card p  { color: var(--muted); font-size: .9rem; line-height: 1.65; }
+  .tag { display: inline-block; padding: .2rem .6rem; border-radius: 5px; font-size: .72rem; font-weight: 600; margin: .75rem .3rem 0 0; background: rgba(14,165,233,.12); color: #38bdf8; border: 1px solid rgba(14,165,233,.25); }
+
+  /* ── CONTACT CARD ── */
+  .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+  .contact-item {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+    text-decoration: none; color: var(--text);
+    transition: border-color .2s, transform .2s;
+  }
+  .contact-item:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .contact-item .ci-icon { font-size: 1.6rem; flex-shrink: 0; width: 42px; text-align: center; }
+  .contact-item .ci-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .contact-item .ci-value { font-size: .9rem; font-weight: 600; margin-top: .1rem; word-break: break-all; }
+
+  /* ── STATS ── */
+  .mini-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
+  .mini-stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; text-align: center; }
+  .mini-stat .val { font-size: 1.9rem; font-weight: 900; background: linear-gradient(135deg, #0ea5e9, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .mini-stat .lbl { font-size: .78rem; color: var(--muted); margin-top: .25rem; }
+
+  @media(max-width:600px){
+    .dev-hero h1 { font-size: 1.6rem; }
+    .social-links { gap: .5rem; }
+    .social-btn { padding: .45rem .9rem; font-size: .78rem; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO ── -->
+<section class="dev-hero">
+  <div class="avatar-wrap">
+    <div class="avatar">R</div>
+    <div class="avatar-ring"></div>
+  </div>
+  <h1>Built by <span>Rahul Prasad Das</span></h1>
+  <div class="dev-role"><i class="fa fa-code"></i> Full Stack Developer &amp; ML Engineer</div>
+  <p class="dev-bio">
+    B.Tech student in Computer Science &amp; Engineering at Govt. College of Engineering, Odisha.
+    Passionate about building intelligent, real-world applications that combine machine learning with
+    clean, responsive web interfaces. HealthGuard is my B.Tech Final Year Project (2024–25).
+  </p>
+  <div class="social-links">
+    <a class="social-btn phone" href="tel:+919040786464">
+      <i class="fa fa-phone"></i> +91 90407 86464
+    </a>
+    <a class="social-btn mail" href="mailto:rqhulprasadcoding01@gmail.com">
+      <i class="fa fa-envelope"></i> Email Me
+    </a>
+    <a class="social-btn fb" href="https://www.facebook.com/Rahul-Prasad-Das" target="_blank" rel="noopener">
+      <i class="fab fa-facebook-f"></i> Rahul Prasad Das
+    </a>
+    <a class="social-btn ig" href="https://www.instagram.com/the___cyber__rahul" target="_blank" rel="noopener">
+      <i class="fab fa-instagram"></i> the___cyber__rahul
+    </a>
+    <a class="social-btn li" href="https://www.linkedin.com/in/rahul-prasad-das" target="_blank" rel="noopener">
+      <i class="fab fa-linkedin-in"></i> Rahul Prasad Das
+    </a>
+  </div>
+</section>
+
+<div class="dev-section">
+
+  <!-- Stats -->
+  <div class="mini-stats">
+    <div class="mini-stat"><div class="val">3</div><div class="lbl">ML Models</div></div>
+    <div class="mini-stat"><div class="val">88%+</div><div class="lbl">Best Accuracy</div></div>
+    <div class="mini-stat"><div class="val">10+</div><div class="lbl">HTML Templates</div></div>
+    <div class="mini-stat"><div class="val">2024</div><div class="lbl">Project Year</div></div>
+  </div>
+
+  <!-- Technologies -->
+  <div class="section-heading"><i class="fa fa-layer-group"></i> Technologies Learned</div>
+  <div class="tech-grid" style="margin-bottom:3rem;">
+    <div class="tech-card"><div class="tech-icon">🐍</div><div><div class="tech-name">Python</div><div class="tech-sub">Core programming</div></div></div>
+    <div class="tech-card"><div class="tech-icon">🌶️</div><div><div class="tech-name">Flask</div><div class="tech-sub">Web framework</div></div></div>
+    <div class="tech-card"><div class="tech-icon">🗄️</div><div><div class="tech-name">MySQL</div><div class="tech-sub">Relational database</div></div></div>
+    <div class="tech-card"><div class="tech-icon">🔗</div><div><div class="tech-name">SQLAlchemy</div><div class="tech-sub">ORM layer</div></div></div>
+    <div class="tech-card"><div class="tech-icon">🤖</div><div><div class="tech-name">scikit-learn</div><div class="tech-sub">Machine learning</div></div></div>
+    <div class="tech-card"><div class="tech-icon">🔢</div><div><div class="tech-name">NumPy / Pandas</div><div class="tech-sub">Data processing</div></div></div>
+    <div class="tech-card"><div class="tech-icon">🌐</div><div><div class="tech-name">HTML5 / CSS3</div><div class="tech-sub">Frontend markup</div></div></div>
+    <div class="tech-card"><div class="tech-icon">⚡</div><div><div class="tech-name">JavaScript</div><div class="tech-sub">Client-side logic</div></div></div>
+    <div class="tech-card"><div class="tech-icon">📊</div><div><div class="tech-name">Chart.js</div><div class="tech-sub">Data visualisation</div></div></div>
+    <div class="tech-card"><div class="tech-icon">📄</div><div><div class="tech-name">ReportLab</div><div class="tech-sub">PDF generation</div></div></div>
+    <div class="tech-card"><div class="tech-icon">🔒</div><div><div class="tech-name">Flask-Bcrypt</div><div class="tech-sub">Password security</div></div></div>
+    <div class="tech-card"><div class="tech-icon">🪪</div><div><div class="tech-name">Flask-Login</div><div class="tech-sub">Auth & sessions</div></div></div>
+  </div>
+
+  <!-- Project spotlight -->
+  <div class="section-heading"><i class="fa fa-rocket"></i> Featured Project</div>
+  <div class="project-card">
+    <h3>🛡️ HealthGuard — Multi Disease Risk Assessment System</h3>
+    <p>
+      A full-stack web application that predicts the risk of Heart Disease, Diabetes, and Kidney Disease
+      using an ensemble of scikit-learn ML models. Features a patient portal with risk trend charts,
+      downloadable PDF health reports, and automatic risk-increase alerts, alongside a doctor dashboard
+      for monitoring all registered patients. Built entirely from scratch as a B.Tech Final Year Project.
+    </p>
+    <div>
+      <span class="tag">Flask</span>
+      <span class="tag">MySQL</span>
+      <span class="tag">scikit-learn</span>
+      <span class="tag">Chart.js</span>
+      <span class="tag">ReportLab</span>
+      <span class="tag">BCrypt</span>
+      <span class="tag">Flask-Login</span>
+      <span class="tag">SQLAlchemy</span>
+    </div>
+    <div style="margin-top:1.2rem; display:flex; gap:.75rem; flex-wrap:wrap;">
+      {% if current_user.is_authenticated %}
+        {% if current_user.role == 'doctor' %}
+          <a href="{{ url_for('doctor_dashboard') }}" class="btn btn-primary btn-sm"><i class="fa fa-stethoscope"></i> Doctor Dashboard</a>
+        {% else %}
+          <a href="{{ url_for('patient_dashboard') }}" class="btn btn-primary btn-sm"><i class="fa fa-gauge"></i> My Dashboard</a>
+        {% endif %}
+      {% else %}
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm"><i class="fa fa-user-plus"></i> Try It — Register Free</a>
+        <a href="{{ url_for('login') }}" class="btn btn-outline btn-sm"><i class="fa fa-right-to-bracket"></i> Login</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Contact -->
+  <div class="section-heading" style="margin-top:3rem;"><i class="fa fa-address-book"></i> Reach Us At</div>
+  <div class="contact-grid">
+    <a class="contact-item" href="tel:+919040786464">
+      <div class="ci-icon">📞</div>
+      <div>
+        <div class="ci-label">Phone</div>
+        <div class="ci-value">+91 90407 86464</div>
+      </div>
+    </a>
+    <a class="contact-item" href="mailto:rqhulprasadcoding01@gmail.com">
+      <div class="ci-icon">📧</div>
+      <div>
+        <div class="ci-label">Email</div>
+        <div class="ci-value">rqhulprasadcoding01@gmail.com</div>
+      </div>
+    </a>
+    <a class="contact-item" href="https://www.facebook.com/Rahul-Prasad-Das" target="_blank" rel="noopener">
+      <div class="ci-icon">📘</div>
+      <div>
+        <div class="ci-label">Facebook</div>
+        <div class="ci-value">Rahul Prasad Das</div>
+      </div>
+    </a>
+    <a class="contact-item" href="https://www.instagram.com/the___cyber__rahul" target="_blank" rel="noopener">
+      <div class="ci-icon">📸</div>
+      <div>
+        <div class="ci-label">Instagram</div>
+        <div class="ci-value">the___cyber__rahul</div>
+      </div>
+    </a>
+    <a class="contact-item" href="https://www.linkedin.com/in/rahul-prasad-das" target="_blank" rel="noopener">
+      <div class="ci-icon">💼</div>
+      <div>
+        <div class="ci-label">LinkedIn</div>
+        <div class="ci-value">Rahul Prasad Das</div>
+      </div>
+    </a>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,5 @@
+{
+  "heart_disease":  {"accuracy": 88.33, "model": "VotingClassifier", "dataset": "UCI Heart Disease"},
+  "diabetes":       {"accuracy": 74.03, "model": "VotingClassifier", "dataset": "PIMA Indians Diabetes"},
+  "kidney_disease": {"accuracy": 100.0, "model": "VotingClassifier", "dataset": "UCI CKD Dataset"}
+}

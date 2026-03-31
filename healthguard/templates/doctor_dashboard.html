@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Doctor Dashboard — HealthGuard{% endblock %}
+{% block extra_css %}
+<style>
+  .search-bar { display:flex; gap:.75rem; margin-bottom:1.5rem; }
+  .search-bar input { flex:1; max-width:380px; }
+  .filter-btns { display:flex; gap:.5rem; flex-wrap:wrap; }
+  .filter-btn { padding:.4rem .9rem; border-radius:99px; font-size:.8rem; font-weight:600; cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--muted); transition:all .2s; }
+  .filter-btn.active, .filter-btn:hover { border-color:var(--primary); color:var(--primary); background:rgba(14,165,233,.1); }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <h1><i class="fa fa-stethoscope"></i> Doctor Dashboard</h1>
+    <p>Monitor all patient health data and risk levels.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card" style="border-left:4px solid var(--primary);">
+      <div class="label">Total Patients</div>
+      <div class="value" style="color:var(--primary);">{{ total }}</div>
+      <div class="sub">Registered patients</div>
+    </div>
+    <div class="stat-card" style="border-left:4px solid var(--danger);">
+      <div class="label">High Risk</div>
+      <div class="value" style="color:var(--danger);">{{ high_risk }}</div>
+      <div class="sub">≥60% on any disease</div>
+    </div>
+    <div class="stat-card" style="border-left:4px solid var(--warning);">
+      <div class="label">Moderate Risk</div>
+      <div class="value" style="color:var(--warning);">{{ moderate_risk }}</div>
+      <div class="sub">30–59% on any disease</div>
+    </div>
+    <div class="stat-card" style="border-left:4px solid var(--success);">
+      <div class="label">Low Risk</div>
+      <div class="value" style="color:var(--success);">{{ low_risk }}</div>
+      <div class="sub">&lt;30% on all diseases</div>
+    </div>
+  </div>
+
+  <!-- Patient table -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="fa fa-users"></i> All Patients</span>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="🔍  Search patient by name or email..." />
+      <div class="filter-btns">
+        <button class="filter-btn active" onclick="filterRisk('all', this)">All</button>
+        <button class="filter-btn" onclick="filterRisk('High Risk', this)">High Risk</button>
+        <button class="filter-btn" onclick="filterRisk('Moderate', this)">Moderate</button>
+        <button class="filter-btn" onclick="filterRisk('Low Risk', this)">Low Risk</button>
+        <button class="filter-btn" onclick="filterRisk('No Data', this)">No Data</button>
+      </div>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table id="patientTable">
+        <thead>
+          <tr>
+            <th>Patient</th>
+            <th>Age / Sex</th>
+            <th>Heart</th>
+            <th>Diabetes</th>
+            <th>Kidney</th>
+            <th>Risk</th>
+            <th>Last Check</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in patient_data %}
+          <tr data-risk="{{ d.risk_cat }}" data-name="{{ d.patient.name | lower }}" data-email="{{ d.patient.email | lower }}">
+            <td>
+              <div style="font-weight:600;">{{ d.patient.name }}</div>
+              <div style="font-size:.75rem; color:var(--muted);">{{ d.patient.email }}</div>
+            </td>
+            <td>{{ d.patient.age or '—' }} / {{ d.patient.sex or '—' }}</td>
+            {% if d.latest %}
+            <td style="font-weight:700; color:{% if d.latest.heart_risk >= 60 %}var(--danger){% elif d.latest.heart_risk >= 30 %}var(--warning){% else %}var(--success){% endif %}">
+              {{ d.latest.heart_risk }}%
+            </td>
+            <td style="font-weight:700; color:{% if d.latest.diabetes_risk >= 60 %}var(--danger){% elif d.latest.diabetes_risk >= 30 %}var(--warning){% else %}var(--success){% endif %}">
+              {{ d.latest.diabetes_risk }}%
+            </td>
+            <td style="font-weight:700; color:{% if d.latest.kidney_risk >= 60 %}var(--danger){% elif d.latest.kidney_risk >= 30 %}var(--warning){% else %}var(--success){% endif %}">
+              {{ d.latest.kidney_risk }}%
+            </td>
+            {% else %}
+            <td colspan="3" style="color:var(--muted); text-align:center;">No data</td>
+            {% endif %}
+            <td>
+              <span class="badge {% if d.risk_cat == 'High Risk' %}badge-high{% elif d.risk_cat == 'Moderate' %}badge-moderate{% elif d.risk_cat == 'Low Risk' %}badge-low{% else %}badge-nodata{% endif %}">
+                {{ d.risk_cat }}
+              </span>
+            </td>
+            <td style="font-size:.8rem; color:var(--muted);">
+              {% if d.latest %}{{ d.latest.created_at.strftime('%d %b %Y') }}{% else %}—{% endif %}
+            </td>
+            <td>
+              <a href="{{ url_for('view_patient', patient_id=d.patient.id) }}" class="btn btn-primary btn-sm">
+                <i class="fa fa-eye"></i> View
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentFilter = 'all';
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+function filterRisk(cat, btn) {
+  currentFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll('#patientTable tbody tr').forEach(row => {
+    const riskMatch = currentFilter === 'all' || row.dataset.risk === currentFilter;
+    const textMatch = !q || row.dataset.name.includes(q) || row.dataset.email.includes(q);
+    row.style.display = (riskMatch && textMatch) ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}
